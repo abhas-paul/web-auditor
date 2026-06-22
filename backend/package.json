@@ -8,5 +8,10 @@
   },
   "peerDependencies": {
     "typescript": "^5"
+  },
+  "dependencies": {
+    "dotenv": "^17.4.2",
+    "hono": "^4.12.26",
+    "mongoose": "^9.7.1"
   }
 }
