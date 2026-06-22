@@ -1,15 +1,10 @@
-import { Hono } from "hono";
+import "dotenv/config";
+import app from "./src/app";
+import { connectDB } from "./src/config/db";
 
-const app = new Hono();
-
-app.get("/", (c) => {
-  return c.json({
-    success: true,
-    message: "AI Website Auditor API Running",
-  });
-});
+await connectDB();
 
 export default {
-  port: 3000,
+  port: Number(process.env.PORT) || 3000,
   fetch: app.fetch,
 };
