@@ -55,6 +55,18 @@ export const runLighthouseAudit = async (url: string) => {
       inp:
         lhr.audits["interaction-to-next-paint"]
           ?.numericValue ?? null,
+
+      firstContentfulPaint:
+        lhr.audits["first-contentful-paint"]
+          ?.numericValue ?? null,
+
+      speedIndex:
+        lhr.audits["speed-index"]
+          ?.numericValue ?? null,
+
+      totalBlockingTime:
+        lhr.audits["total-blocking-time"]
+          ?.numericValue ?? null,
     };
   } catch (error) {
     console.error("Lighthouse Audit Error:", error);
