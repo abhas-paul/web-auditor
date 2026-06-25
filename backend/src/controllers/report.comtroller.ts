@@ -1,10 +1,42 @@
 import type { Handler } from "hono";
-import { runLighthouseAudit } from "../services/lighthouse.service.ts";
+import { runLighthouseAudit } from "../services/lighthouse.service";
+import { analyzeSeo } from "../services/seo.service";
 
 export const generateReport: Handler = async (c) => {
-  const { url } = await c.req.json();
+  try {
+    const { url } = await c.req.json();
 
-  const data = await runLighthouseAudit(url);
+    if (!url) {
+      return c.json(
+        {
+          success: false,
+          message: "URL is required",
+        },
+        400
+      );
+    }
 
-  return c.json(data);
+    const [lighthouse, seo] = await Promise.all([
+      runLighthouseAudit(url),
+      analyzeSeo(url),
+    ]);
+
+    return c.json({
+      success: true,
+      data: {
+        lighthouse,
+        seo,
+      },
+    });
+  } catch (error) {
+    console.error("Generate Report Error:", error);
+
+    return c.json(
+      {
+        success: false,
+        message: "Failed to generate report",
+      },
+      500
+    );
+  }
 };
