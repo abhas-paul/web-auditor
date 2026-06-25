@@ -1,21 +1,15 @@
 import { Hono } from "hono";
 
+import { register, login, logout, me } from "../controllers/auth.controller.ts";
+
 const authRoutes = new Hono();
 
-authRoutes.post("/login", (c) => {
-  return c.json({ message: "Login route" });
-});
+authRoutes.post("/login", login);
 
-authRoutes.post("/register", (c) => {
-  return c.json({ message: "Register route" });
-});
+authRoutes.post("/register", register);
 
-authRoutes.post("/logout", (c) => {
-    return c.json({ message: "Logout route" });
-});
+authRoutes.post("/logout", logout);
 
-authRoutes.post("/me", (c) => {
-    return c.json({ message: "me route" });
-});
+authRoutes.post("/me", me);
 
 export default authRoutes;
