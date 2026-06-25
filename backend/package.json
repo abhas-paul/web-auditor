@@ -17,6 +17,7 @@
     "dotenv": "^17.4.2",
     "hono": "^4.12.26",
     "jsonwebtoken": "^9.0.3",
+    "lighthouse": "^13.4.0",
     "mongoose": "8.13.2"
   }
 }
