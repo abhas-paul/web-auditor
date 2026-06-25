@@ -1,5 +1,3 @@
-// services/lighthouse.service.ts
-
 import lighthouse from "lighthouse";
 import { launch } from "chrome-launcher";
 
@@ -11,6 +9,10 @@ export const runLighthouseAudit = async (url: string) => {
       "--headless",
       "--disable-gpu",
       "--no-sandbox",
+      "--disable-dev-shm-usage",
+      "--disable-extensions",
+      "--disable-background-networking",
+      "--disable-default-apps",
     ],
   });
 
@@ -28,57 +30,28 @@ export const runLighthouseAudit = async (url: string) => {
     const { lhr } = result;
 
     return {
-      performance: Math.round(
-        (lhr.categories.performance.score ?? 0) * 100
-      ),
+      performance: Math.round((lhr.categories.performance.score ?? 0) * 100),
+      seo: Math.round((lhr.categories.seo.score ?? 0) * 100),
+      accessibility: Math.round((lhr.categories.accessibility.score ?? 0) * 100),
+      bestPractices: Math.round((lhr.categories["best-practices"].score ?? 0) * 100),
 
-      seo: Math.round(
-        (lhr.categories.seo.score ?? 0) * 100
-      ),
-
-      accessibility: Math.round(
-        (lhr.categories.accessibility.score ?? 0) * 100
-      ),
-
-      bestPractices: Math.round(
-        (lhr.categories["best-practices"].score ?? 0) * 100
-      ),
-
-      lcp:
-        lhr.audits["largest-contentful-paint"]
-          ?.numericValue ?? null,
-
-      cls:
-        lhr.audits["cumulative-layout-shift"]
-          ?.numericValue ?? null,
-
-      inp:
-        lhr.audits["interaction-to-next-paint"]
-          ?.numericValue ?? null,
-
-      firstContentfulPaint:
-        lhr.audits["first-contentful-paint"]
-          ?.numericValue ?? null,
-
-      speedIndex:
-        lhr.audits["speed-index"]
-          ?.numericValue ?? null,
-
-      totalBlockingTime:
-        lhr.audits["total-blocking-time"]
-          ?.numericValue ?? null,
+      lcp: lhr.audits["largest-contentful-paint"]?.numericValue ?? null,
+      cls: lhr.audits["cumulative-layout-shift"]?.numericValue ?? null,
+      inp: lhr.audits["interaction-to-next-paint"]?.numericValue ?? null,
+      firstContentfulPaint: lhr.audits["first-contentful-paint"]?.numericValue ?? null,
+      speedIndex: lhr.audits["speed-index"]?.numericValue ?? null,
+      totalBlockingTime: lhr.audits["total-blocking-time"]?.numericValue ?? null,
     };
   } catch (error) {
     console.error("Lighthouse Audit Error:", error);
     throw new Error("Failed to run Lighthouse audit");
   } finally {
+    // 🔧 IMPORTANT FIX: give Windows time to release file handles
     try {
+      await new Promise((r) => setTimeout(r, 300));
       await chrome.kill();
     } catch (error) {
-      console.warn(
-        "Failed to clean up Chrome process:",
-        error
-      );
+      console.warn("Chrome cleanup warning (safe to ignore):", error);
     }
   }
 };
