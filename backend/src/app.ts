@@ -2,6 +2,7 @@ import { Hono } from "hono";
 
 import { connectDB } from "../src/config/db.ts";
 import authRoutes from "./routes/auth.route.ts";
+import reportRoutes from "./routes/report.route.ts";
 
 const app = new Hono();
 
@@ -15,5 +16,6 @@ app.get("/", (c) => {
 });
 
 app.route("/auth", authRoutes);
+app.route("/report", reportRoutes)
 
 export default app;
