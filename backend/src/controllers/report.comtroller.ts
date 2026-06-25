@@ -91,7 +91,7 @@ export const getReports: Handler = async (c) => {
 
     const reports = await Report.find({ user: userId })
       .sort({ createdAt: -1 }) // latest first
-      .select("-__v");
+      .select("-__v -report");
 
     return c.json({
       success: true,
