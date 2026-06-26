@@ -16,6 +16,6 @@ app.get("/", (c) => {
 });
 
 app.route("/auth", authRoutes);
-app.route("/report", reportRoutes)
+app.route("/reports", reportRoutes);
 
 export default app;

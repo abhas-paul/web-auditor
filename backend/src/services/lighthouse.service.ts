@@ -30,10 +30,10 @@ export const runLighthouseAudit = async (url: string) => {
     const { lhr } = result;
 
     return {
-      performance: Math.round((lhr.categories.performance.score ?? 0) * 100),
-      seo: Math.round((lhr.categories.seo.score ?? 0) * 100),
-      accessibility: Math.round((lhr.categories.accessibility.score ?? 0) * 100),
-      bestPractices: Math.round((lhr.categories["best-practices"].score ?? 0) * 100),
+      performance: Math.round((lhr.categories?.performance?.score ?? 0) * 100),
+      seo: Math.round((lhr.categories?.seo?.score ?? 0) * 100),
+      accessibility: Math.round((lhr.categories?.accessibility?.score ?? 0) * 100),
+      bestPractices: Math.round((lhr.categories?.["best-practices"]?.score ?? 0) * 100),
 
       lcp: lhr.audits["largest-contentful-paint"]?.numericValue ?? null,
       cls: lhr.audits["cumulative-layout-shift"]?.numericValue ?? null,
