@@ -7,7 +7,7 @@ export default function DashboardLayout({
     <div className="min-h-screen bg-slate-50">
 
 
-      <main className="ml-72">
+      <main >
 
 
         <div className="p-8">
