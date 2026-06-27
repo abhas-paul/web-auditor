@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import useAuth from "@/hooks/useAuth";
+import useAuth from "@/features/auth/hooks/useAuth";
 
 export default function HomePage() {
   const { user, loading } = useAuth();

@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { loginSchema } from "../schemas/login.schema";
-import useLogin from "@/hooks/useLogin";
+import useLogin from "@/features/auth/hooks/useLogin";
 
 export default function LoginForm() {
   const login = useLogin();
@@ -108,7 +108,7 @@ export default function LoginForm() {
         </form>
 
         <p className="mt-6 text-center text-sm text-slate-500">
-          Don't have an account?{" "}
+          Don&apos;t have an account?{" "}
           <Link
             href="/register"
             className="font-semibold text-blue-600 hover:underline"

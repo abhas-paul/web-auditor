@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { registerSchema } from "../schemas/register.schema";
-import useRegister from "@/hooks/useRegister";
+import useRegister from "@/features/auth/hooks/useRegister";
 
 export default function RegisterForm() {
   const registerMutation = useRegister();
