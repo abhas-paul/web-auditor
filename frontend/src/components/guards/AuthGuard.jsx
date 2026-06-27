@@ -6,33 +6,21 @@ import { useRouter } from "next/navigation";
 import useAuth from "@/features/auth/hooks/useAuth";
 import PageLoader from "../common/PageLoader";
 
-export default function AuthGuard({
-  children,
-}) {
+export default function AuthGuard({ children }) {
   const router = useRouter();
-
-  const {
-    isLoading,
-    isAuthenticated,
-  } = useAuth();
+  const { isLoading, isAuthenticated, isError } = useAuth();
 
   useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
+    if (!isLoading && (!isAuthenticated || isError)) {
       router.replace("/login");
     }
-  }, [
-    isLoading,
-    isAuthenticated,
-    router,
-  ]);
+  }, [isLoading, isAuthenticated, isError, router]);
 
   if (isLoading) {
-    return (
-      <PageLoader/>
-    );
+    return <PageLoader />;
   }
 
-  if (!isAuthenticated) {
+  if (!isAuthenticated || isError) {
     return null;
   }
 

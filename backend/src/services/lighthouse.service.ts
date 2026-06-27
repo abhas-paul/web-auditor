@@ -46,12 +46,19 @@ export const runLighthouseAudit = async (url: string) => {
     console.error("Lighthouse Audit Error:", error);
     throw new Error("Failed to run Lighthouse audit");
   } finally {
-    // 🔧 IMPORTANT FIX: give Windows time to release file handles
     try {
-      await new Promise((r) => setTimeout(r, 300));
+      await new Promise((resolve) => setTimeout(resolve, 300));
       await chrome.kill();
     } catch (error) {
-      console.warn("Chrome cleanup warning (safe to ignore):", error);
+      const isExpectedCleanupIssue =
+        error &&
+        typeof error === "object" &&
+        "code" in error &&
+        error.code === "EBUSY";
+
+      if (!isExpectedCleanupIssue) {
+        console.warn("Chrome cleanup warning (safe to ignore):", error);
+      }
     }
   }
 };

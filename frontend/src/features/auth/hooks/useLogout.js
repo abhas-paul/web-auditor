@@ -15,24 +15,20 @@ export default function useLogout() {
     mutationFn: authService.logout,
 
     onSuccess: (data) => {
-      // Remove the authenticated user from cache
-      queryClient.setQueryData(QUERY_KEYS.AUTH_USER, null);
-
-      // Optionally clear all cached queries
+      queryClient.setQueryData(QUERY_KEYS.AUTH_USER, {
+        authenticated: false,
+        user: null,
+      });
+      queryClient.removeQueries({ queryKey: QUERY_KEYS.REPORTS });
+      queryClient.removeQueries({ queryKey: QUERY_KEYS.AUTH_USER });
       queryClient.clear();
 
-      toast.success(
-        data.message || "Logged out successfully"
-      );
-
+      toast.success(data.message || "Logged out successfully");
       router.replace("/login");
     },
 
     onError: (error) => {
-      toast.error(
-        error.response?.data?.message ||
-          "Failed to logout"
-      );
+      toast.error(error.response?.data?.message || "Failed to logout");
     },
   });
 }

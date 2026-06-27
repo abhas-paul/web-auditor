@@ -4,7 +4,7 @@ import Link from "next/link";
 import useAuth from "@/features/auth/hooks/useAuth";
 
 export default function HomePage() {
-  const { user, loading } = useAuth();
+  const { user, isLoading, isAuthenticated } = useAuth();
 
   return (
     <main className="min-h-screen bg-white text-slate-900">
@@ -25,7 +25,7 @@ export default function HomePage() {
         </p>
 
         <div className="mt-10 flex items-center gap-4">
-          {loading ? null : user ? (
+          {isLoading ? null : isAuthenticated ? (
             <Link
               href="/dashboard"
               className="rounded-xl bg-blue-600 px-6 py-3 font-medium text-white transition hover:bg-blue-700"

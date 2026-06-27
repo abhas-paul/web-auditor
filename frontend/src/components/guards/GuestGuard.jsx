@@ -6,30 +6,18 @@ import { useRouter } from "next/navigation";
 import useAuth from "@/features/auth/hooks/useAuth";
 import PageLoader from "../common/PageLoader";
 
-export default function GuestGuard({
-  children,
-}) {
+export default function GuestGuard({ children }) {
   const router = useRouter();
-
-  const {
-    isLoading,
-    isAuthenticated,
-  } = useAuth();
+  const { isLoading, isAuthenticated } = useAuth();
 
   useEffect(() => {
     if (!isLoading && isAuthenticated) {
       router.replace("/dashboard");
     }
-  }, [
-    isLoading,
-    isAuthenticated,
-    router,
-  ]);
+  }, [isLoading, isAuthenticated, router]);
 
   if (isLoading) {
-    return (
-      <PageLoader/>
-    );
+    return <PageLoader />;
   }
 
   if (isAuthenticated) {

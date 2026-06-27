@@ -10,15 +10,13 @@ export const reportService = {
   },
 
   async getById(reportId) {
-    const { data } = await api.get(
-      `/reports/${reportId}`
-    );
+    const { data } = await api.get(`/reports/${reportId}`);
 
     return data;
   },
 
   async getAll() {
-    const { data } = await api.get("/reports/");
+    const { data } = await api.get("/reports");
 
     return data;
   },
