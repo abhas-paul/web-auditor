@@ -1,17 +1,16 @@
 import type { Context, Handler } from "hono";
 import { setCookie, deleteCookie, getCookie } from "hono/cookie";
 import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
 
 import { User } from "../models/User.model.ts";
 import { generateToken } from "../utils/generateToken.ts";
 import { verifyToken } from "../utils/verifyToken.ts";
 
-export const register = async (c: Context) => {
+export const register: Handler = async (c: Context) => {
   try {
-    const { username, email, password } = await c.req.json();
+    const { name, email, password } = await c.req.json();
 
-    if (!username || !email || !password) {
+    if (!name || !email || !password) {
       return c.json(
         {
           success: false,
@@ -22,14 +21,14 @@ export const register = async (c: Context) => {
     }
 
     const existingUser = await User.findOne({
-      $or: [{ email }, { username }],
+      $or: [{ email }, { username: name }],
     });
 
     if (existingUser) {
       return c.json(
         {
           success: false,
-          message: "Username or email already exists",
+          message: "Name or email already exists",
         },
         409
       );
@@ -38,27 +37,19 @@ export const register = async (c: Context) => {
     const hashedPassword = await bcrypt.hash(password, 12);
 
     const user = await User.create({
-      username,
+      username: name,
       email,
       password: hashedPassword,
     });
 
-    const token = jwt.sign(
-      {
-        userId: user._id,
-      },
-      process.env.JWT_SECRET!,
-      {
-        expiresIn: "7d",
-      }
-    );
+    const token = generateToken(user._id.toString());
 
     setCookie(c, "token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "Lax",
-      maxAge: 60 * 60 * 24 * 7, // 7 days
       path: "/",
+      maxAge: 60 * 60 * 24 * 7,
     });
 
     return c.json(
@@ -67,14 +58,14 @@ export const register = async (c: Context) => {
         message: "User registered successfully",
         user: {
           id: user._id,
-          username: user.username,
+          name: user.username,
           email: user.email,
         },
       },
       201
     );
   } catch (error) {
-    console.error(error);
+    console.error("Register Error:", error);
 
     return c.json(
       {
@@ -86,7 +77,7 @@ export const register = async (c: Context) => {
   }
 };
 
-export const login: Handler = async (c) => {
+export const login: Handler = async (c: Context) => {
   try {
     const { email, password } = await c.req.json();
 
@@ -100,7 +91,9 @@ export const login: Handler = async (c) => {
       );
     }
 
-    const user = await User.findOne({ email }).select("+password");
+    const user = await User.findOne({
+      email,
+    }).select("+password");
 
     if (!user) {
       return c.json(
@@ -134,7 +127,7 @@ export const login: Handler = async (c) => {
       secure: process.env.NODE_ENV === "production",
       sameSite: "Lax",
       path: "/",
-      maxAge: 60 * 60 * 24 * 7, // 7 days
+      maxAge: 60 * 60 * 24 * 7,
     });
 
     return c.json({
@@ -142,7 +135,7 @@ export const login: Handler = async (c) => {
       message: "Logged in successfully",
       user: {
         id: user._id,
-        username: user.username,
+        name: user.username,
         email: user.email,
       },
     });
@@ -159,7 +152,7 @@ export const login: Handler = async (c) => {
   }
 };
 
-export const logout: Handler = async (c) => {
+export const logout: Handler = async (c: Context) => {
   try {
     deleteCookie(c, "token", {
       path: "/",
@@ -182,7 +175,7 @@ export const logout: Handler = async (c) => {
   }
 };
 
-export const me: Handler = async (c) => {
+export const me: Handler = async (c: Context) => {
   try {
     const token = getCookie(c, "token");
 
@@ -216,15 +209,17 @@ export const me: Handler = async (c) => {
       authenticated: true,
       user: {
         id: user._id,
-        username: user.username,
+        name: user.username,
         email: user.email,
       },
     });
   } catch (error) {
+    console.error("Me Error:", error);
+
     return c.json(
       {
         authenticated: false,
-        message: "Invalid token",
+        message: "Invalid or expired token",
       },
       401
     );
