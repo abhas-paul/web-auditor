@@ -3,7 +3,8 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 
-import useAuth from "@/features/auth/hooks/useAuth";
+import useAuth from "@/hooks/useAuth";
+import PageLoader from "../common/PageLoader";
 
 export default function AuthGuard({
   children,
@@ -27,9 +28,7 @@ export default function AuthGuard({
 
   if (isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="h-10 w-10 animate-spin rounded-full border-4 border-slate-300 border-t-blue-600" />
-      </div>
+      <PageLoader/>
     );
   }
 

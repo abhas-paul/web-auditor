@@ -1,11 +1,18 @@
 import AuthGuard from "@/components/guards/AuthGuard";
+import DashboardLayout from "@/components/dashboard/DashboardLayout";
 
-export default function DashboardLayout({
+export default function Layout({
   children,
 }) {
   return (
     <AuthGuard>
-      {children}
+
+      <DashboardLayout>
+
+        {children}
+
+      </DashboardLayout>
+
     </AuthGuard>
   );
 }
