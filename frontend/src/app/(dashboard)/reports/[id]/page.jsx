@@ -15,14 +15,55 @@ import MetricCard from "@/features/reports/components/MetricCard";
 import GeneratePdfButton from "@/features/reports/components/GeneratePdfButton";
 
 function asArray(value) {
-  if (Array.isArray(value)) return value;
-  if (typeof value === "string") return [value];
-  if (typeof value === "object" && value !== null) {
-    return Object.entries(value).map(([key, item]) =>
-      typeof item === "string" ? item : `${key}: ${JSON.stringify(item)}`
-    );
+  if (!value) return [];
+
+  if (Array.isArray(value)) {
+    return value
+      .map(normalizeItem)
+      .filter(Boolean);
   }
-  return [];
+
+  if (typeof value === "string") {
+    return value.trim() ? [value] : [];
+  }
+
+  const normalized = normalizeItem(value);
+
+  return normalized ? [normalized] : [];
+}
+
+function normalizeItem(item) {
+  if (!item) return null;
+
+  if (typeof item === "string") {
+    const text = item.trim();
+
+    if (
+      !text ||
+      text === "N/A" ||
+      text === "undefined" ||
+      text === "[object Object]"
+    ) {
+      return null;
+    }
+
+    return text;
+  }
+
+  if (typeof item !== "object") {
+    return null;
+  }
+
+  return (
+    item.description ||
+    item.recommendation ||
+    item.summary ||
+    item.title ||
+    item.name ||
+    item.text ||
+    item.item ||
+    null
+  );
 }
 
 function buildSummaryItems(section) {
@@ -95,6 +136,14 @@ export default function ReportPage() {
 
   const isPdf = searchParams.get("pdf") === "true";
 
+  const hasValue = (v) =>
+    v !== undefined &&
+    v !== null &&
+    v !== "" &&
+    v !== "N/A";
+
+  const hasItems = (arr) => asArray(arr).length > 0;
+
   return (
     <main
       className={`space-y-8 
@@ -143,8 +192,19 @@ export default function ReportPage() {
           <div className="space-y-4">
             <p className="text-slate-600">{executiveSummary.overallHealth || "The summary will appear here."}</p>
             <div className="grid gap-3 sm:grid-cols-2">
-              <MetricCard label="Overall Recommendation" value={executiveSummary.overallRecommendation || "Review needed"} />
-              <MetricCard label="Key Strengths" value={executiveSummary.keyStrengths?.length || 0} />
+              {hasValue(executiveSummary.overallRecommendation) && (
+                <MetricCard
+                  label="Overall Recommendation"
+                  value={executiveSummary.overallRecommendation}
+                />
+              )}
+
+              {executiveSummary.keyStrengths?.length > 0 && (
+                <MetricCard
+                  label="Key Strengths"
+                  value={executiveSummary.keyStrengths.length}
+                />
+              )}
             </div>
             <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
               <h3 className="mb-2 text-sm font-semibold text-slate-700">Highlights</h3>
@@ -163,8 +223,19 @@ export default function ReportPage() {
         <SectionCard title="Performance">
           <div className="space-y-4">
             <div className="grid gap-3 sm:grid-cols-2">
-              <MetricCard label="Score" value={`${performance.score ?? 0}/100`} />
-              <MetricCard label="Status" value={performance.coreWebVitalsStatus || "Pending"} />
+              {hasValue(performance.score) && (
+                <MetricCard
+                  label="Score"
+                  value={`${performance.score}/100`}
+                />
+              )}
+
+              {hasValue(performance.coreWebVitalsStatus) && (
+                <MetricCard
+                  label="Status"
+                  value={performance.coreWebVitalsStatus}
+                />
+              )}
             </div>
             <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
               <p className="font-medium text-slate-700">Core metrics</p>
@@ -200,8 +271,19 @@ export default function ReportPage() {
         <SectionCard title="SEO">
           <div className="space-y-4">
             <div className="grid gap-3 sm:grid-cols-2">
-              <MetricCard label="Score" value={`${seo.score ?? 0}/100`} />
-              <MetricCard label="H1 Count" value={seo.h1Count ?? "N/A"} />
+              {hasValue(seo.score) && (
+                <MetricCard
+                  label="Score"
+                  value={`${seo.score}/100`}
+                />
+              )}
+
+              {hasValue(seo.h1Count) && (
+                <MetricCard
+                  label="H1 Count"
+                  value={seo.h1Count}
+                />
+              )}
             </div>
             <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
               <p><span className="font-medium text-slate-700">Title:</span> {seo.titleTag?.content || "N/A"}</p>
@@ -221,10 +303,28 @@ export default function ReportPage() {
 
         <SectionCard title="Security">
           <div className="space-y-4">
-            <div className="grid gap-3 sm:grid-cols-2">
-              <MetricCard label="Score" value={security.score || "N/A"} />
-              <MetricCard label="CSP" value={security.contentSecurityPolicy?.enabled ? "Enabled" : "Missing"} />
-            </div>
+            {(security.score != null ||
+              security.contentSecurityPolicy?.enabled != null) && (
+                <div className="grid gap-3 sm:grid-cols-2">
+                  {security.score != null && (
+                    <MetricCard
+                      label="Score"
+                      value={`${security.score}/100`}
+                    />
+                  )}
+
+                  {security.contentSecurityPolicy?.enabled != null && (
+                    <MetricCard
+                      label="CSP"
+                      value={
+                        security.contentSecurityPolicy.enabled
+                          ? "Enabled"
+                          : "Missing"
+                      }
+                    />
+                  )}
+                </div>
+              )}
             <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
               <p><span className="font-medium text-slate-700">CSP:</span> {security.contentSecurityPolicy?.status || "N/A"}</p>
               <p className="mt-2"><span className="font-medium text-slate-700">HSTS:</span> {security.httpStrictTransportSecurity?.status || "N/A"}</p>
@@ -243,10 +343,23 @@ export default function ReportPage() {
 
         <SectionCard title="Accessibility">
           <div className="space-y-4">
-            <div className="grid gap-3 sm:grid-cols-2">
-              <MetricCard label="Score" value={`${accessibility.score ?? 0}/100`} />
-              <MetricCard label="Status" value={accessibility.status || "Pending"} />
-            </div>
+            {(accessibility.score != null || accessibility.status) && (
+              <div className="grid gap-3 sm:grid-cols-2">
+                {accessibility.score != null && (
+                  <MetricCard
+                    label="Score"
+                    value={`${accessibility.score}/100`}
+                  />
+                )}
+
+                {accessibility.status && (
+                  <MetricCard
+                    label="Status"
+                    value={accessibility.status}
+                  />
+                )}
+              </div>
+            )}
             <ul className="space-y-2 text-sm text-slate-600">
               {asArray(accessibility.insights).map((item, index) => (
                 <li key={`${item}-${index}`} className="flex gap-2">
