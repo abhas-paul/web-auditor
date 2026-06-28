@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useMemo } from "react";
 import { useParams } from "next/navigation";
 import { ArrowLeft, RefreshCw } from "lucide-react";
+import { useSearchParams } from "next/navigation";
 
 import useReport from "@/features/reports/hooks/useReport";
 import ReportHeader from "@/features/reports/components/ReportHeader";
@@ -11,6 +12,7 @@ import SectionCard from "@/features/reports/components/SectionCard";
 import ReportLoading from "@/features/reports/components/ReportLoading";
 import ReportError from "@/features/reports/components/ReportError";
 import MetricCard from "@/features/reports/components/MetricCard";
+import GeneratePdfButton from "@/features/reports/components/GeneratePdfButton";
 
 function asArray(value) {
   if (Array.isArray(value)) return value;
@@ -53,6 +55,7 @@ function renderStyledText(text) {
 export default function ReportPage() {
   const { id } = useParams();
   const { data, isLoading, isError, error, refetch } = useReport(id);
+  const searchParams = useSearchParams();
 
   const report = data?.report;
   const audit = report?.report;
@@ -90,25 +93,40 @@ export default function ReportPage() {
   const revenue = audit?.revenueImpactAnalysis || {};
   const actionPlan = audit?.prioritizedActionPlan || {};
 
+  const isPdf = searchParams.get("pdf") === "true";
+
   return (
-    <main className="mx-auto max-w-7xl space-y-8 px-6 py-10">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <Link
-          href="/dashboard"
-          className="inline-flex items-center gap-2 text-sm font-medium text-slate-600 transition hover:text-blue-600"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Back to Dashboard
-        </Link>
-        <button
-          type="button"
-          onClick={() => refetch()}
-          className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-50"
-        >
-          <RefreshCw className="h-4 w-4" />
-          Refresh
-        </button>
-      </div>
+    <main
+      className={`space-y-8 
+        ${isPdf
+          ? "bg-white"
+          : "mx-auto max-w-7xl px-6 py-10"
+        }`}
+    >
+      {!isPdf && (
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <Link
+            href="/dashboard"
+            className="inline-flex items-center gap-2 text-sm font-medium text-slate-600 transition hover:text-blue-600"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back to Dashboard
+          </Link>
+
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => refetch()}
+              className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-50"
+            >
+              <RefreshCw className="h-4 w-4" />
+              Refresh
+            </button>
+
+            <GeneratePdfButton reportId={id} />
+          </div>
+        </div>
+      )}
 
       <ReportHeader
         metadata={metadata}
@@ -335,6 +353,7 @@ export default function ReportPage() {
           </div>
         </SectionCard>
       </section>
+      <div id="report-ready" />
     </main>
   );
 }
