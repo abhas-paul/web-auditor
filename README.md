@@ -477,15 +477,6 @@ NEXT_PUBLIC_API_URL=http://localhost:3000/
 ## 📸 Screenshots
 
 > Screenshots are not currently included in the repository.
-> To add them, place images in a `screenshots/` directory at the root and reference them here.
-
-| Page | Description |
-|---|---|
-| Landing page | Hero section with feature highlights |
-| Login / Register | Authentication forms |
-| Dashboard | User's audit history |
-| Report Detail | Full AI-generated audit report |
-| PDF Export | Printable A4 report |
 
 ---
 
