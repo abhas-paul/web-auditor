@@ -2,7 +2,7 @@ import type { Handler } from "hono";
 import { isValidObjectId } from "mongoose";
 import { getCookie } from "hono/cookie";
 
-import { generateReportPDF } from "../services/pdf.service";
+import { generateReportPDF } from "../services/pdf.service.ts";
 import { runLighthouseAudit } from "../services/lighthouse.service.ts";
 import { analyzeSeo } from "../services/seo.service.ts";
 import { analyzeSecurity } from "../services/security.service.ts";

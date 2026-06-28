@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 
 import { protectRoute } from "../middleware/protectRoute.middleware";
-import { downloadReportPDF, generateReport, getReportById, getReports } from "../controllers/report.comtroller.ts";
+import { downloadReportPDF, generateReport, getReportById, getReports } from "../controllers/report.controller.ts";
 
 const reportRoutes = new Hono();
 
